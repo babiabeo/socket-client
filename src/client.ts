@@ -262,17 +262,18 @@ export class WSClient {
         }
 
         this.logger.info("closing websocket connection...");
+
+        const closeCode = options.code ?? CloseCode.NormalClosure;
+        const closeReason = options.reason ?? "Closed by client";
+
+        this.state = WSState.CLOSING;
         try {
-            const closeCode = options.code ?? CloseCode.NormalClosure;
-            const closeReason = encode(options.reason ?? "Closed by client");
-
-            this.state = WSState.CLOSING;
-
             let closeFrame: Uint8Array;
             if (closeCode > 0) {
-                closeFrame = new Uint8Array(closeReason.byteLength + 2);
+                const reason = encode(closeReason);
+                closeFrame = new Uint8Array(reason.byteLength + 2);
                 closeFrame.set([closeCode >> 8, closeCode & 0xFF]);
-                closeFrame.set(closeReason, 2);
+                closeFrame.set(reason, 2);
             } else {
                 closeFrame = new Uint8Array();
             }
@@ -284,6 +285,7 @@ export class WSClient {
         } finally {
             this.fragments = [];
             this.conn.close();
+            this.onclose(this, closeCode, closeReason);
             this.state = WSState.CLOSED;
             this.logger.info("closed websocket connection");
         }
