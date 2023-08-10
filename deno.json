@@ -1,0 +1,7 @@
+{
+    "exclude": ["README.md", "LICENSE", "deno.json"],
+    "fmt": {
+        "indentWidth": 4,
+        "semiColons": true
+    }
+}
