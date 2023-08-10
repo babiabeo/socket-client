@@ -151,9 +151,9 @@ export class Frame {
 
         // deno-fmt-ignore
         return new Frame({
-      fin, rsv1, rsv2, rsv3,
-      opcode, masked: hasMask,
-      maskingKey, payloadLen
-    });
+            fin, rsv1, rsv2, rsv3,
+            opcode, masked: hasMask,
+            maskingKey, payloadLen
+        });
     }
 }
