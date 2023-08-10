@@ -9,7 +9,8 @@ inspired by [pogsocket](https://github.com/dimensional-fun/pogsocket) and [v-web
 import { ... } from "https://deno.land/x/socket_client@VERSION/mod.ts";
 ```
 
-**Note** Require `--allow-read` and `--allow-net` flags.
+**Note**
+> Require `--allow-read` and `--allow-net` flags.
 
 ## Example
 

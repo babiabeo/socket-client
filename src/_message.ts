@@ -43,6 +43,7 @@ export async function readMessage(ws: WSClient) {
 
             if (isNonCtrl(frame.opcode)) {
                 ws.close({ code: 0, reason: "" });
+                ws.logger.error("unexpected opcode");
                 return null;
             }
 
