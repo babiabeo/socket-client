@@ -2,7 +2,9 @@ import { WSClient } from "./client.ts";
 import { Frame, isCtrl, isNonCtrl, OpCode } from "./frame.ts";
 
 export interface Message {
+    /** The frame type of the message. */
     opcode: OpCode;
+    /** The payload data of the message. */
     payload: Uint8Array;
 }
 

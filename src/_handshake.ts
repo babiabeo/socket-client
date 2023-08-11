@@ -50,6 +50,7 @@ export async function handshake(ws: WSClient) {
                 const actual = header[1];
                 if (actual !== expect) {
                     ws.logger.error(`unexpected "Sec-WebSocket-Accept" value`);
+                    ws.onerror(ws, new Error(`unexpected "Sec-WebSocket-Accept" value`));
                     throw new Error(
                         `Unexpected "Sec-WebSocket-Accept" value\n- Expect: ${expect}\n- Actual: ${actual}`,
                     );
@@ -62,6 +63,7 @@ export async function handshake(ws: WSClient) {
 
     if (flags < 3) {
         ws.logger.error("unacceptable handshake");
+        ws.onerror(ws, new Error("unacceptable handshake"));
         throw new Error("Unacceptable handshake");
     }
 }

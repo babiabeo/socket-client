@@ -20,9 +20,13 @@ export enum WSState {
 }
 
 export interface WSConfig {
+    /** The uri used to establish the WebSocket connection. */
     uri: string | URL;
+    /** Extra headers that will be used when connecting. */
     headers?: HeadersInit;
+    /** The custom logger used to log messages. */
     logger?: Logger;
+    /** The level of logger (Default to `INFO`) (Will be excluded if `logger` is present). */
     logLevel?: LevelName;
 }
 
@@ -47,16 +51,26 @@ export class WSClient {
     #writer: BufWriter = undefined!;
     #reader: BufReader = undefined!;
 
+    /** The uri used to establish the WebSocket connection. */
     uri: URL;
+    /** The state of the connection. */
     state: WSState;
+    /** The current fragments. */
     fragments: Message[];
+    /** Headers that will be used when connecting. */
     headers: Headers;
+    /** The last time the client received a pong. */
     lastPong: number;
+    /** The logger used to log messages. */
     logger: Logger;
 
+    /** The function to handle open event. */
     onopen: WSOpenEvent;
+    /** The function to handle error event. */
     onerror: WSErrorEvent;
+    /** The function to handle message event. */
     onmessage: WSMessageEvent;
+    /** The function to handle close event. */
     onclose: WSCloseEvent;
 
     constructor(config: WSConfig) {
@@ -83,18 +97,22 @@ export class WSClient {
         });
     }
 
+    /** The connection of this client. */
     get conn() {
         return this.#conn;
     }
 
+    /** The current writer for the connection. */
     get writer() {
         return this.#writer;
     }
 
+    /** The current reader for the connection. */
     get reader() {
         return this.#reader;
     }
 
+    /** Connect to the websocket. */
     async connect() {
         if (this.state !== WSState.CLOSED) {
             throw new Deno.errors.ConnectionRefused(
@@ -203,9 +221,12 @@ export class WSClient {
         }
 
         this.logger.info("stop listening to server...");
-        this.close();
+        if (this.state !== WSState.CONNECTING) {
+            this.close();
+        }
     }
 
+    /** Send/Write a frame to the websocket. */
     async sendFrame(opcode: OpCode, data: Uint8Array) {
         if (this.state !== WSState.OPEN && this.state !== WSState.CLOSING) {
             this.logger.error("client is not connected");
@@ -248,6 +269,7 @@ export class WSClient {
         await this.writer.flush();
     }
 
+    /** Send/Write a message frame to the websocket. */
     sendMessage(mes: string | Uint8Array) {
         if (typeof mes === "string") {
             return this.sendFrame(OpCode.TextFrame, encode(mes));
@@ -256,6 +278,7 @@ export class WSClient {
         return this.sendFrame(OpCode.BinaryFrame, mes);
     }
 
+    /** Close the websocket connection. */
     async close(options: CloseOptions = {}) {
         if (this.state === WSState.CLOSING || this.state === WSState.CLOSED) {
             return;
@@ -293,6 +316,8 @@ export class WSClient {
 }
 
 export interface CloseOptions {
+    /** The close code. */
     code?: number;
+    /** The close reason. */
     reason?: string;
 }

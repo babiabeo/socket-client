@@ -25,35 +25,53 @@ export enum CloseCode {
     BadTLSHandshake = 1015,
 }
 
+/** Whether the given opcode is control. */
 export function isCtrl(opcode: OpCode) {
     const ctrl = [OpCode.Close, OpCode.Ping, OpCode.Pong];
     return ctrl.includes(opcode);
 }
 
+/** Whether the given opcode is non-control. */
 export function isNonCtrl(opcode: OpCode) {
     const nonCtrl = [OpCode.TextFrame, OpCode.BinaryFrame];
     return nonCtrl.includes(opcode);
 }
 
 export interface FrameData {
+    /** Indicates that this is the final fragment in a message */
     fin: boolean;
+    /** Reversed for future use. */
     rsv1: boolean;
+    /** Reversed for future use. */
     rsv2: boolean;
+    /** Reversed for future use. */
     rsv3: boolean;
+    /** The interpretation of the payload data. */
     opcode: OpCode;
+    /** Whether the payload data is masked. */
     masked: boolean;
+    /** The length of the payload data. */
     payloadLen: number;
+    /** The key used to mask all frames sent from the client to the websocket. */
     maskingKey?: Uint8Array;
 }
 
 export class Frame {
+    /** Indicates that this is the final fragment in a message */
     fin: boolean;
+    /** Reversed for future use. */
     rsv1: boolean;
+    /** Reversed for future use. */
     rsv2: boolean;
+    /** Reversed for future use. */
     rsv3: boolean;
+    /** The interpretation of the payload data. */
     opcode: OpCode;
+    /** Whether the payload data is masked. */
     masked: boolean;
+    /** The length of the payload data. */
     payloadLen: number;
+    /** The key used to mask all frames sent from the client to the websocket. */
     maskingKey?: Uint8Array;
 
     constructor(data: FrameData) {
@@ -67,6 +85,7 @@ export class Frame {
         this.maskingKey = data.maskingKey;
     }
 
+    /** Check if the frame data is valid. */
     validate() {
         if (this.rsv1 || this.rsv2 || this.rsv3) {
             throw new Error(`"rsv" must be 0, not negotiated`);
@@ -92,6 +111,7 @@ export class Frame {
         }
     }
 
+    /** Read the payload data from the websocket. */
     async readPayload(reader: BufReader) {
         if (this.payloadLen === 0) {
             return new Uint8Array();
@@ -110,6 +130,7 @@ export class Frame {
         return data;
     }
 
+    /** Parse a frame from the websocket. */
     static async parse(reader: BufReader) {
         let byte = await reader.readByte();
         assert(byte !== null, "Cannot read the first byte");
