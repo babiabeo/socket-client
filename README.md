@@ -1,3 +1,6 @@
+> [!WARNING]
+> Not maintained, use https://github.com/babiabeo/deko instead.
+
 # WS Client
 
 A simple WebSocket client for [Deno](https://deno.com/runtime),
